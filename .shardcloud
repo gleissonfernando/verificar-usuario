@@ -1,0 +1,12 @@
+# ShardCloud Configuration
+# Documentation: https://docs.shardcloud.app/config
+
+DISPLAY_NAME=My App
+DESCRIPTION=My awesome application
+MAIN=index.js
+MEMORY=512
+VERSION=recommended
+# SUBDOMAIN=myapp
+# CUSTOM_COMMAND=npm run start
+# LANGUAGE=node
+# APPID=
