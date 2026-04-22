@@ -1,12 +1,12 @@
 # ShardCloud Configuration
 # Documentation: https://docs.shardcloud.app/config
 
-DISPLAY_NAME=My App
-DESCRIPTION=My awesome application
-MAIN=index.js
+DISPLAY_NAME=Discord Verification Bot
+DESCRIPTION=Bot para verificação de usuários Discord com atribuição automática de cargo
+MAIN=dist/index.js
 MEMORY=512
 VERSION=recommended
-# SUBDOMAIN=myapp
-# CUSTOM_COMMAND=npm run start
-# LANGUAGE=node
+SUBDOMAIN=discord-verification
+CUSTOM_COMMAND=pnpm build && pnpm start
+LANGUAGE=node
 # APPID=
