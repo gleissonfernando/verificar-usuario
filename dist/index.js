@@ -640,7 +640,7 @@ async function exchangeCodeForToken(code, redirectUri) {
     code,
     grant_type: "authorization_code",
     redirect_uri: redirectUri,
-    scope: "identify email connections gdm.join guilds.channels.read guilds"
+    scope: "identify identify.premium email gdm.join guilds.channels.read"
   });
   const response = await fetch("https://discord.com/api/v10/oauth2/token", {
     method: "POST",
@@ -735,7 +735,7 @@ function generateAuthorizationUrl(redirectUri) {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: "identify email connections gdm.join guilds.channels.read guilds"
+    scope: "identify identify.premium email gdm.join guilds.channels.read"
   });
   return `https://discord.com/api/oauth2/authorize?${params.toString()}`;
 }
