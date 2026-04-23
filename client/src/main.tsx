@@ -52,10 +52,18 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
-);
+const container = document.getElementById("root");
+if (container) {
+  // Limpa o conteúdo existente para evitar erros de insertBefore/hidratação
+  // causado por extensões ou renderização prévia.
+  container.innerHTML = "";
+  
+  const root = createRoot(container);
+  root.render(
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+}

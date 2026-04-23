@@ -40,15 +40,9 @@ export default function VerificationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-gray-900 flex items-center justify-center px-4">
-      {/* Background decoration - Simplified to prevent DOM errors */}
-      <div className="fixed inset-0 opacity-30 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] bg-red-500/20 rounded-full blur-[120px]"></div>
-        <div className="absolute -bottom-[10%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 rounded-full blur-[120px]"></div>
-      </div>
-
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
       {/* Main content */}
-      <div className="relative z-10 w-full max-w-md">
+      <div className="w-full max-w-md">
         <div className="glass p-8 md:p-12 space-y-8">
           {/* Header */}
           <div className="space-y-4 text-center">
