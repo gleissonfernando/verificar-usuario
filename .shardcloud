@@ -3,7 +3,7 @@
 
 DISPLAY_NAME=Discord Verification Bot
 DESCRIPTION=Bot para verificação de usuários Discord com atribuição automática de cargo
-MAIN=dist/index.js
+MAIN=index.js
 MEMORY=512
 VERSION=recommended
 SUBDOMAIN=discord-verification
