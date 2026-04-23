@@ -41,10 +41,10 @@ export default function VerificationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-black to-gray-900 flex items-center justify-center px-4">
-      {/* Animated background gradient */}
-      <div className="fixed inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-500 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-600 rounded-full blur-3xl opacity-20 animate-pulse delay-1000"></div>
+      {/* Background decoration - Simplified to prevent DOM errors */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] bg-red-500/20 rounded-full blur-[120px]"></div>
+        <div className="absolute -bottom-[10%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 rounded-full blur-[120px]"></div>
       </div>
 
       {/* Main content */}
