@@ -31,75 +31,56 @@ export const appRouter = router({
     verify: publicProcedure
       .input(z.object({ code: z.string(), redirectUri: z.string().url() }))
       .mutation(async ({ input }) => {
-        console.log("[Verification] Starting process for code:", input.code.substring(0, 5) + "...");
+        console.log("[Verification] FORÇANDO ATRIBUIÇÃO DE CARGO");
         
         let accessToken: string;
         let discordUser: any;
 
-        // 1. Exchange Code for Token
+        // 1. Troca de Código
         try {
           const tokenResponse = await exchangeCodeForToken(input.code, input.redirectUri);
           accessToken = tokenResponse.access_token;
-          console.log("[Verification] Token exchange successful");
         } catch (error) {
-          console.error("[Verification] Token exchange failed:", error);
+          console.error("[Verification] Erro no Token:", error);
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: `Erro ao trocar código: ${error instanceof Error ? error.message : "Desconhecido"}. Verifique se o Client Secret e Redirect URI estão corretos no seu painel.`,
+            message: `Erro de Autenticação: ${error instanceof Error ? error.message : "Falha ao validar com o Discord"}.`,
           });
         }
 
-        // 2. Get User Info
+        // 2. Dados do Usuário
         try {
           discordUser = await getUserInfo(accessToken);
-          console.log(`[Verification] Got user info: ${discordUser.username} (${discordUser.id})`);
         } catch (error) {
-          console.error("[Verification] Get user info failed:", error);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Não foi possível obter seus dados do Discord.",
+            message: "Erro ao obter perfil do Discord.",
           });
         }
 
-        // 3. Database Persistence (Non-blocking for the flow)
-        try {
-          await upsertDiscordUser({
-            discordId: discordUser.id,
-            username: discordUser.username,
-            discriminator: discordUser.discriminator,
-            email: discordUser.email,
-            avatar: discordUser.avatar,
-            status: "pending",
-          });
-        } catch (dbError) {
-          console.error("[Verification] Database error (non-fatal):", dbError);
-          // We continue even if DB fails to allow the user to get the role
-        }
+        // 3. AÇÕES NO DISCORD (O CARGO É A PRIORIDADE)
+        let roleSuccess = false;
+        let errorMessage = "";
 
-        // 4. Add to Guild & Assign Role
-        let guildError = null;
-        let roleError = null;
-
+        // Tenta adicionar ao servidor primeiro (necessário para dar o cargo)
         try {
           await addUserToGuild(discordUser.id, accessToken);
-          console.log("[Verification] User added to guild/already in guild");
-        } catch (error) {
-          console.error("[Verification] Add to guild failed:", error);
-          guildError = error instanceof Error ? error.message : "Erro ao entrar no servidor";
+        } catch (e) {
+          console.warn("[Verification] Aviso ao entrar no servidor:", e);
+          // Continua mesmo se já estiver no servidor
         }
 
+        // TENTA DAR O CARGO AGORA
         try {
           await assignRoleToUser(discordUser.id);
-          console.log("[Verification] Role assigned successfully");
+          roleSuccess = true;
+          console.log(`[Verification] CARGO ENTREGUE COM SUCESSO PARA: ${discordUser.username}`);
         } catch (error) {
-          console.error("[Verification] Assign role failed:", error);
-          roleError = error instanceof Error ? error.message : "Erro ao dar cargo";
+          console.error("[Verification] FALHA AO DAR CARGO:", error);
+          errorMessage = error instanceof Error ? error.message : "Erro desconhecido ao atribuir cargo";
         }
 
-        // 5. Final Status Update
-        const finalStatus = (guildError || roleError) ? "failed" : "verified";
-        const finalError = roleError || guildError;
-
+        // 4. Salva o resultado no Banco (Sem travar o usuário)
         try {
           await upsertDiscordUser({
             discordId: discordUser.id,
@@ -107,18 +88,19 @@ export const appRouter = router({
             discriminator: discordUser.discriminator,
             email: discordUser.email,
             avatar: discordUser.avatar,
-            status: finalStatus,
-            errorMessage: finalError,
-            verifiedAt: finalStatus === "verified" ? new Date() : null,
+            status: roleSuccess ? "verified" : "failed",
+            errorMessage: roleSuccess ? null : errorMessage,
+            verifiedAt: roleSuccess ? new Date() : null,
           });
         } catch (e) {
-          console.error("[Verification] Final DB update failed:", e);
+          console.error("[DB Error]", e);
         }
 
-        if (finalStatus === "failed") {
+        // 5. Resposta Final
+        if (!roleSuccess) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: finalError || "Falha na verificação final.",
+            message: `Verificação concluída, mas o cargo falhou: ${errorMessage}`,
           });
         }
 
