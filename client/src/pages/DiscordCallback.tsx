@@ -27,7 +27,7 @@ export default function DiscordCallbackPage() {
         // Verify with backend
         const result = await verifyMutation.mutateAsync({
           code,
-          redirectUri: "https://discord-verification.shardweb.app/api/oauth/callback",
+          redirectUri: "https://verificar-magnatas.shardweb.app/",
         });
 
         if (result.success) {
