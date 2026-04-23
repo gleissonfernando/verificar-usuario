@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, MessageSquare, ExternalLink } from "lucide-react";
 
 interface DiscordUser {
   id: string;
@@ -16,26 +16,28 @@ export default function SuccessPage() {
   const [user, setUser] = useState<DiscordUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(5);
+
+  const DISCORD_CALL_URL = "https://discord.com/channels/1484488132983521352/1484514793502146652";
 
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // Get user info from sessionStorage
         const userJson = sessionStorage.getItem("discordUser");
         if (userJson) {
           try {
             setUser(JSON.parse(userJson));
           } catch (err) {
             console.error("Failed to parse user data:", err);
-            setError("Invalid verification data");
+            setError("Dados de verificação inválidos");
           }
         } else {
-          setError("No verification data found");
+          setError("Nenhum dado de verificação encontrado");
         }
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load user data:", err);
-        setError("Failed to load verification data");
+        setError("Falha ao carregar dados de verificação");
         setIsLoading(false);
       }
     };
@@ -43,9 +45,21 @@ export default function SuccessPage() {
     loadUserData();
   }, []);
 
+  // Countdown and Auto-redirect logic
+  useEffect(() => {
+    if (!isLoading && user && !error) {
+      if (countdown > 0) {
+        const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+        return () => clearTimeout(timer);
+      } else {
+        window.location.href = DISCORD_CALL_URL;
+      }
+    }
+  }, [isLoading, user, error, countdown]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-black to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-red-500" />
       </div>
     );
@@ -53,30 +67,20 @@ export default function SuccessPage() {
 
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-black to-gray-900 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
         <div className="glass p-8 md:p-12 max-w-md w-full space-y-6 text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
-            <svg
-              className="w-8 h-8 text-red-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Verification Data Not Found</h1>
-          <p className="text-gray-400">{error || "Please start the verification process again"}</p>
+          <h1 className="text-2xl font-bold text-white">Dados não encontrados</h1>
+          <p className="text-gray-400">{error || "Por favor, inicie o processo de verificação novamente"}</p>
           <button
             onClick={() => navigate("/")}
             className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
           >
-            Start Over
+            Voltar ao Início
           </button>
         </div>
       </div>
@@ -86,103 +90,74 @@ export default function SuccessPage() {
   const userTag = user.displayName || `${user.username}#${user.discriminator}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-black to-gray-900 flex items-center justify-center px-4">
-      {/* Animated background gradient */}
-      <div className="fixed inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-500 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-600 rounded-full blur-3xl opacity-20 animate-pulse delay-1000"></div>
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      {/* Simplified background decoration */}
+      <div className="fixed inset-0 opacity-20 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] bg-green-500/20 rounded-full blur-[120px]"></div>
+        <div className="absolute -bottom-[10%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 rounded-full blur-[120px]"></div>
       </div>
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="glass p-8 md:p-12 space-y-8">
+        <div className="glass p-8 md:p-12 space-y-8 text-center">
           {/* Success icon */}
           <div className="flex justify-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center animate-pulse">
+            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/20">
               <CheckCircle2 className="w-12 h-12 text-white" />
             </div>
           </div>
 
           {/* Success message */}
-          <div className="space-y-2 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-white">
-              ✅ Verification Complete
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-white">
+              Usuário verificado com sucesso!
             </h1>
-            <p className="text-gray-400 text-lg">
-              Your Discord account has been successfully verified
+            <p className="text-gray-400">
+              Sua conta do Discord foi vinculada e o cargo foi atribuído.
             </p>
           </div>
 
-          {/* User info card */}
-          <div className="bg-black/50 border border-red-500/30 rounded-lg p-6 space-y-4">
-            {/* Avatar */}
-            <div className="flex justify-center">
-              <img
-                src={user.avatar}
-                alt={userTag}
-                className="w-24 h-24 rounded-full border-2 border-red-500 glow-red"
-              />
-            </div>
-
-            {/* User details */}
-            <div className="space-y-3 text-center">
-              <div>
-                <p className="text-gray-500 text-sm">Discord Username</p>
-                <p className="text-white text-xl font-semibold">{userTag}</p>
-              </div>
-
-              {user.email && (
-                <div>
-                  <p className="text-gray-500 text-sm">Email</p>
-                  <p className="text-gray-300 text-sm break-all">{user.email}</p>
-                </div>
-              )}
-
-              <div>
-                <p className="text-gray-500 text-sm">Discord ID</p>
-                <p className="text-gray-300 text-xs font-mono">{user.id}</p>
-              </div>
+          {/* User profile preview */}
+          <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 text-left">
+            <img
+              src={user.avatar}
+              alt={userTag}
+              className="w-16 h-16 rounded-full border-2 border-green-500"
+            />
+            <div>
+              <p className="text-white font-semibold">{userTag}</p>
+              <p className="text-green-500 text-xs font-medium uppercase tracking-wider">Verificado</p>
             </div>
           </div>
 
-          {/* Status badges */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-center">
-              <p className="text-green-400 text-sm font-semibold">✓ Verified</p>
+          {/* Redirect info */}
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 space-y-2">
+            <div className="flex items-center justify-center gap-2 text-blue-400">
+              <MessageSquare className="w-4 h-4" />
+              <span className="text-sm font-medium">Redirecionando para a call...</span>
             </div>
-            <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-center">
-              <p className="text-green-400 text-sm font-semibold">✓ Role Assigned</p>
-            </div>
-          </div>
-
-          {/* Info text */}
-          <div className="text-center text-sm text-gray-400 space-y-2">
-            <p>You have been added to our Discord server</p>
-            <p>Your verification role has been automatically assigned</p>
+            <p className="text-gray-400 text-xs">
+              Você será movido automaticamente em <span className="text-white font-bold">{countdown}</span> segundos.
+            </p>
           </div>
 
           {/* Action buttons */}
-          <div className="space-y-3">
+          <div className="space-y-3 pt-4">
+            <button
+              onClick={() => window.location.href = DISCORD_CALL_URL}
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
+            >
+              Entrar na Call Agora
+              <ExternalLink className="w-4 h-4" />
+            </button>
+            
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 glow-red"
+              className="w-full text-gray-500 hover:text-gray-300 text-sm transition-colors"
             >
-              Return to Home
-            </button>
-            <button
-              onClick={() => window.open("https://discord.com/app", "_blank")}
-              className="w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 border border-gray-700"
-            >
-              Open Discord
+              Voltar para a página inicial
             </button>
           </div>
-        </div>
-
-        {/* Bottom decoration */}
-        <div className="mt-8 flex justify-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full opacity-50"></div>
-          <div className="w-2 h-2 bg-green-500 rounded-full opacity-75"></div>
-          <div className="w-2 h-2 bg-green-500 rounded-full opacity-50"></div>
         </div>
       </div>
     </div>
