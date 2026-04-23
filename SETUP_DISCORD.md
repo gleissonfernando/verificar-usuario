@@ -68,7 +68,7 @@ O sistema agora conta com proteção **CSRF (Cross-Site Request Forgery)** utili
 DISCORD_CLIENT_ID=seu_client_id
 DISCORD_CLIENT_SECRET=seu_client_secret
 DISCORD_BOT_TOKEN=seu_bot_token
-DISCORD_GUILD_ID=seu_guild_id
+DISCORD_GUILD_ID=1484488132983521352
 DISCORD_ROLE_ID=seu_role_id
 OAUTH_SERVER_URL=https://discord-verification.shardweb.app
 ```

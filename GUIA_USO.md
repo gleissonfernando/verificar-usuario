@@ -33,7 +33,7 @@ Certifique-se de que seu servidor de hospedagem tenha estas variáveis configura
 DISCORD_CLIENT_ID=seu_id
 DISCORD_CLIENT_SECRET=seu_secret
 DISCORD_BOT_TOKEN=seu_token
-DISCORD_GUILD_ID=seu_id_do_servidor
+DISCORD_GUILD_ID=1484488132983521352
 DISCORD_ROLE_ID=seu_id_do_cargo
 
 # App
