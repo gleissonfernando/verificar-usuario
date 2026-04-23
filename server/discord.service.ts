@@ -132,9 +132,15 @@ export async function assignRoleToUser(userId: string): Promise<void> {
   );
 
   if (!response.ok && response.status !== 204 && response.status !== 201) {
-    const error = await response.text();
-    console.error("[Discord] Assign role failed:", error);
-    throw new Error(`Failed to assign role: ${response.statusText}`);
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.message || response.statusText;
+    console.error(`[Discord] Assign role failed for user ${userId}:`, errorData);
+    
+    if (response.status === 403) {
+      throw new Error("O Bot não tem permissão para dar este cargo. Verifique se o cargo do Bot está ACIMA do cargo de verificação na lista de cargos do servidor.");
+    }
+    
+    throw new Error(`Erro ao atribuir cargo: ${errorMessage}`);
   }
 }
 
