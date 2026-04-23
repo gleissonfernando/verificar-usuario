@@ -17,6 +17,7 @@ export default function DiscordCallbackPage() {
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
         const state = params.get("state");
+        const savedState = localStorage.getItem("discord_oauth_state");
 
         if (!code) {
           setError("No authorization code received from Discord");
@@ -24,10 +25,19 @@ export default function DiscordCallbackPage() {
           return;
         }
 
+        if (!state || state !== savedState) {
+          setError("Security validation failed: Invalid state parameter");
+          setIsProcessing(false);
+          return;
+        }
+
+        // Clear state after use
+        localStorage.removeItem("discord_oauth_state");
+
         // Verify with backend
         const result = await verifyMutation.mutateAsync({
           code,
-          redirectUri: "https://verificar-magnatas.shardweb.app/callback",
+          redirectUri: `${window.location.origin}/auth/discord/callback`,
         });
 
         if (result.success) {
@@ -81,13 +91,19 @@ export default function DiscordCallbackPage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Verification Failed</h1>
+          <h1 className="text-2xl font-bold text-white">Falha na Verificação</h1>
           <p className="text-gray-400">{error}</p>
+          <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-lg text-left">
+            <p className="text-yellow-500 text-xs font-semibold uppercase mb-1">Dica:</p>
+            <p className="text-gray-300 text-sm">
+              Certifique-se de que você autorizou todos os escopos e que o bot tem as permissões necessárias no servidor.
+            </p>
+          </div>
           <button
             onClick={() => window.location.href = "/"}
-            className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+            className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg shadow-red-500/20"
           >
-            Try Again
+            Tentar Novamente
           </button>
         </div>
       </div>

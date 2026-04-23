@@ -38,7 +38,7 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
     code,
     grant_type: "authorization_code",
     redirect_uri: redirectUri,
-    scope: "identify gdm.join email",
+    scope: "identify guilds.join email",
   });
 
   const response = await fetch("https://discord.com/api/v10/oauth2/token", {
@@ -50,9 +50,9 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    console.error("[Discord] Token exchange failed:", error);
-    throw new Error(`Failed to exchange code for token: ${response.statusText}`);
+    const errorData = await response.json().catch(() => ({}));
+    console.error("[Discord] Token exchange failed:", errorData);
+    throw new Error(errorData.error_description || errorData.error || `Failed to exchange code for token: ${response.statusText}`);
   }
 
   return response.json() as Promise<DiscordAccessTokenResponse>;
@@ -99,10 +99,13 @@ export async function addUserToGuild(userId: string, accessToken: string): Promi
     }),
   });
 
-  if (!response.ok && response.status !== 204) {
-    const error = await response.text();
-    console.error("[Discord] Add user to guild failed:", error);
-    throw new Error(`Failed to add user to guild: ${response.statusText}`);
+  if (!response.ok && response.status !== 204 && response.status !== 201) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error("[Discord] Add user to guild failed:", errorData);
+    // 201: Created (added to guild), 204: No Content (already in guild)
+    if (response.status !== 403) { // Ignore 403 if it's just a permission issue we want to log but not crash
+       throw new Error(errorData.message || `Failed to add user to guild: ${response.statusText}`);
+    }
   }
 }
 
@@ -170,7 +173,7 @@ export function generateAuthorizationUrl(redirectUri: string): string {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: "identify gdm.join email",
+    scope: "identify guilds.join email",
   });
 
   return `https://discord.com/api/oauth2/authorize?${params.toString()}`;

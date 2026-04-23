@@ -21,9 +21,16 @@ export default function VerificationPage() {
     setError(null);
 
     try {
+      // Generate a random state for security
+      const state = Math.random().toString(36).substring(2, 15);
+      localStorage.setItem("discord_oauth_state", state);
+
       const { data } = await getAuthUrl.refetch();
       if (data?.authUrl) {
-        window.location.href = data.authUrl;
+        // Append state to the auth URL
+        const authUrl = new URL(data.authUrl);
+        authUrl.searchParams.set("state", state);
+        window.location.href = authUrl.toString();
       }
     } catch (err) {
       setError("Failed to initiate Discord login. Please try again.");

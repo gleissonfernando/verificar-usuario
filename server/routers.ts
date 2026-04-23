@@ -56,27 +56,25 @@ export const appRouter = router({
           });
 
           // Add user to guild
+          let addError = null;
           try {
             await addUserToGuild(discordUser.id, accessToken);
           } catch (error) {
             console.error("Failed to add user to guild:", error);
-            await upsertDiscordUser({
-              discordId: discordUser.id,
-              username: discordUser.username,
-              discriminator: discordUser.discriminator,
-              email: discordUser.email,
-              avatar: discordUser.avatar,
-              status: "failed",
-              errorMessage: "Failed to add user to server",
-            });
-            throw error;
+            addError = error instanceof Error ? error.message : "Failed to add user to server";
           }
 
           // Assign role
+          let roleError = null;
           try {
             await assignRoleToUser(discordUser.id);
           } catch (error) {
             console.error("Failed to assign role:", error);
+            roleError = error instanceof Error ? error.message : "Failed to assign role";
+          }
+
+          if (addError || roleError) {
+            const finalError = addError || roleError;
             await upsertDiscordUser({
               discordId: discordUser.id,
               username: discordUser.username,
@@ -84,9 +82,9 @@ export const appRouter = router({
               email: discordUser.email,
               avatar: discordUser.avatar,
               status: "failed",
-              errorMessage: "Failed to assign role",
+              errorMessage: finalError,
             });
-            throw error;
+            throw new Error(finalError);
           }
 
           // Mark as verified
