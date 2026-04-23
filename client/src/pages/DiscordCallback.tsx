@@ -35,9 +35,13 @@ export default function DiscordCallbackPage() {
         localStorage.removeItem("discord_oauth_state");
 
         // Verify with backend
+        console.log("Iniciando mutação de verificação...");
         const result = await verifyMutation.mutateAsync({
           code,
           redirectUri: `${window.location.origin}/auth/discord/callback`,
+        }).catch(err => {
+          console.error("Erro detalhado da mutação:", err);
+          throw err;
         });
 
         if (result.success) {
