@@ -40,9 +40,10 @@ export interface InsertDiscordUser extends Partial<DiscordUser> {
 let _client: MongoClient | null = null;
 
 export async function getDb(): Promise<Db | null> {
-  if (!_client && process.env.DATABASE_URL) {
+  const dbUrl = ENV.databaseUrl;
+  if (!_client && dbUrl) {
     try {
-      _client = new MongoClient(process.env.DATABASE_URL);
+      _client = new MongoClient(dbUrl);
       await _client.connect();
     } catch (error) {
       console.warn("[Database] Failed to connect to MongoDB:", error);

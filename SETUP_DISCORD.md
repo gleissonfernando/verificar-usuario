@@ -65,10 +65,16 @@ O sistema agora conta com proteção **CSRF (Cross-Site Request Forgery)** utili
 ## 📝 Variáveis de Ambiente (.env)
 
 ```env
-DISCORD_CLIENT_ID=seu_client_id
-DISCORD_CLIENT_SECRET=seu_client_secret
-DISCORD_BOT_TOKEN=seu_bot_token
+# Credenciais do Discord (Obtenha no Discord Developer Portal)
+DISCORD_CLIENT_ID=1492325134550302952
+DISCORD_CLIENT_SECRET=seu_secret_real
+DISCORD_BOT_TOKEN=seu_token_do_bot_real
+
+# Configurações do Servidor
 DISCORD_GUILD_ID=1484488132983521352
-DISCORD_ROLE_ID=seu_role_id
+DISCORD_ROLE_ID=id_do_cargo_verificado
+
+# Configurações da Aplicação
 OAUTH_SERVER_URL=https://discord-verification.shardweb.app
+DATABASE_URL=sua_url_do_mongodb_atlas
 ```

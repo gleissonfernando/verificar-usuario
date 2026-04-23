@@ -20,13 +20,13 @@ export default function DiscordCallbackPage() {
         const savedState = localStorage.getItem("discord_oauth_state");
 
         if (!code) {
-          setError("No authorization code received from Discord");
+          setError("Nenhum código de autorização recebido do Discord");
           setIsProcessing(false);
           return;
         }
 
         if (!state || state !== savedState) {
-          setError("Security validation failed: Invalid state parameter");
+          setError("Falha na validação de segurança: Parâmetro state inválido");
           setIsProcessing(false);
           return;
         }
@@ -55,7 +55,7 @@ export default function DiscordCallbackPage() {
         setError(
           err instanceof Error
             ? err.message
-            : "Verification failed. Please try again."
+            : "A verificação falhou. Por favor, tente novamente."
         );
         setIsProcessing(false);
       }
@@ -69,8 +69,8 @@ export default function DiscordCallbackPage() {
       <div className="min-h-screen bg-gradient-to-br from-black via-black to-gray-900 flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin text-red-500 mx-auto" />
-          <p className="text-white text-lg">Verifying your Discord account...</p>
-          <p className="text-gray-400 text-sm">Please wait while we process your verification</p>
+          <p className="text-white text-lg">Verificando sua conta do Discord...</p>
+          <p className="text-gray-400 text-sm">Por favor, aguarde enquanto processamos sua verificação</p>
         </div>
       </div>
     );

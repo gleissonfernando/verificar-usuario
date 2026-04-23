@@ -25,8 +25,7 @@ interface DiscordAccessTokenResponse {
  * Exchange Discord authorization code for access token.
  */
 export async function exchangeCodeForToken(code: string, redirectUri: string): Promise<DiscordAccessTokenResponse> {
-  const clientId = process.env.DISCORD_CLIENT_ID;
-  const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+  const { clientId, clientSecret } = ENV.discord;
 
   if (!clientId || !clientSecret) {
     throw new Error("Discord Client ID or Secret not configured");
@@ -81,8 +80,7 @@ export async function getUserInfo(accessToken: string): Promise<DiscordUser> {
  * Add user to Discord server (guild).
  */
 export async function addUserToGuild(userId: string, accessToken: string): Promise<void> {
-  const botToken = process.env.DISCORD_BOT_TOKEN;
-  const guildId = process.env.DISCORD_GUILD_ID;
+  const { botToken, guildId } = ENV.discord;
 
   if (!botToken || !guildId) {
     throw new Error("Discord Bot Token or Guild ID not configured");
@@ -102,8 +100,7 @@ export async function addUserToGuild(userId: string, accessToken: string): Promi
   if (!response.ok && response.status !== 204 && response.status !== 201) {
     const errorData = await response.json().catch(() => ({}));
     console.error("[Discord] Add user to guild failed:", errorData);
-    // 201: Created (added to guild), 204: No Content (already in guild)
-    if (response.status !== 403) { // Ignore 403 if it's just a permission issue we want to log but not crash
+    if (response.status !== 403) {
        throw new Error(errorData.message || `Failed to add user to guild: ${response.statusText}`);
     }
   }
@@ -113,9 +110,7 @@ export async function addUserToGuild(userId: string, accessToken: string): Promi
  * Assign role to user in Discord server.
  */
 export async function assignRoleToUser(userId: string): Promise<void> {
-  const botToken = process.env.DISCORD_BOT_TOKEN;
-  const guildId = process.env.DISCORD_GUILD_ID;
-  const roleId = process.env.DISCORD_ROLE_ID;
+  const { botToken, guildId, roleId } = ENV.discord;
 
   if (!botToken || !guildId || !roleId) {
     throw new Error("Discord Bot Token, Guild ID, or Role ID not configured");
@@ -161,7 +156,6 @@ export function getUserAvatarUrl(user: DiscordUser): string {
   if (user.avatar) {
     return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
   }
-  // Fallback to default avatar based on discriminator
   const defaultAvatarIndex = parseInt(user.discriminator) % 5;
   return `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
 }
@@ -170,7 +164,7 @@ export function getUserAvatarUrl(user: DiscordUser): string {
  * Generate Discord OAuth2 authorization URL.
  */
 export function generateAuthorizationUrl(redirectUri: string): string {
-  const clientId = process.env.DISCORD_CLIENT_ID;
+  const { clientId } = ENV.discord;
   if (!clientId) {
     throw new Error("Discord Client ID not configured");
   }
