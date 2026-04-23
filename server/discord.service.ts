@@ -38,7 +38,7 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
     code,
     grant_type: "authorization_code",
     redirect_uri: redirectUri,
-    scope: "identify email gdm.join guilds.join",
+    scope: "identify gdm.join email",
   });
 
   const response = await fetch("https://discord.com/api/v10/oauth2/token", {
@@ -170,7 +170,7 @@ export function generateAuthorizationUrl(redirectUri: string): string {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: "identify email gdm.join guilds.join",
+    scope: "identify gdm.join email",
   });
 
   return `https://discord.com/api/oauth2/authorize?${params.toString()}`;
